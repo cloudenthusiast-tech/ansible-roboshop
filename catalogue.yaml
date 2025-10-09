@@ -1,0 +1,66 @@
+- name: catalogue setup
+  hosts: catalogue
+  become: yes
+  tasks:
+  - name: disable default nodejs
+    ansible.builtin.command: dnf module disable nodejs -y
+
+  - name: enable nodejs:20
+    ansible.builtin.command: dnf module enable nodejs:20 -y
+
+  - name: install nodejs
+    ansible.builtin.dnf:
+      name: nodejs
+      state: present
+
+  - name: application user set-up
+    ansible.builtin.user:
+       name: roboshop
+       comment: roboshop system user
+       system: true
+       shell: /sbin/nologin
+       home: /app
+
+  - name: create app directory
+    ansible.builtin.file:
+       path: /app
+       state: directory
+
+  - name: download catalogue application
+    ansible.builtin.get_url:
+      url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+      dest: /tmp/catalogue.zip
+
+  - name: unarchive catalogue file
+    ansible.builtin.unarchive:
+      src: /tmp/catalogue.zip
+      dest: /app
+      remote_src: yes
+       
+- name: install dependencies
+  community.general.npm:
+    path: /app
+
+- name: copy catalogue systemd file
+  ansible.builtin.copy:
+    src: catalogue.service
+    dest: /etc/systemd/system/catalogue.service
+
+- name: copy mongo repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: install mongodb client
+  ansible.builtin.dnf: 
+    name: mongodb-mongosh
+    state: present
+
+- name: connnect to mongodb catalogue
+  ansible.builtin.command: mongosh mongodb.kolanu.space --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')"
+  register: catalogue_output
+
+- name: print catalogue_output
+  ansible.builtin.command:
+    msg: "{{ catalogue_output }}"
+
