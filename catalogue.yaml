@@ -56,11 +56,15 @@
       name: mongodb-mongosh
       state: present
 
+# check if datatbase exists or not 
   - name: connnect to mongodb catalogue
     ansible.builtin.command: mongosh mongodb.kolanu.space --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')"
     register: catalogue_output
 
-  - name: print catalogue_output
-    ansible.builtin.debug:
-      msg: "{{ catalogue_output }}"
+  # - name: print catalogue_output
+  #   ansible.builtin.debug:
+  #     msg: "{{ catalogue_output }}"
 
+  - name: load products into mongodb
+    ansible.builtin.shell: mongosh --host mongodb.kolanu.space </app/db/master-data.js
+    when: catalogue_output.stdout < 0 

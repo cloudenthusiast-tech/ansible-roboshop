@@ -1,0 +1,22 @@
+ {
+        "changed": true,
+        "cmd": [
+            "mongosh",
+            "mongodb.kolanu.space",
+            "--quiet",
+            "--eval",
+            "db.getMongo().getDBNames().indexOf('catalogue')"
+        ],
+        "delta": "0:00:01.014702",
+        "end": "2025-10-09 14:03:46.455353",
+        "failed": false,
+        "msg": "",
+        "rc": 0,
+        "start": "2025-10-09 14:03:45.440651",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "-1",
+        "stdout_lines": [
+            "-1"
+        ]
+    }
