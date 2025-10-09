@@ -37,30 +37,30 @@
       dest: /app
       remote_src: yes
        
-- name: install dependencies
-  community.general.npm:
+  - name: install dependencies
+    community.general.npm:
     path: /app
 
-- name: copy catalogue systemd file
-  ansible.builtin.copy:
-    src: catalogue.service
-    dest: /etc/systemd/system/catalogue.service
+  - name: copy catalogue systemd file
+    ansible.builtin.copy:
+      src: catalogue.service
+      dest: /etc/systemd/system/catalogue.service
 
-- name: copy mongo repo
-  ansible.builtin.copy:
+  - name: copy mongo repo
+    ansible.builtin.copy:
     src: mongo.repo
     dest: /etc/yum.repos.d/mongo.repo
 
-- name: install mongodb client
-  ansible.builtin.package: 
-    name: mongodb-mongosh
-    state: present
+  - name: install mongodb client
+    ansible.builtin.package: 
+      name: mongodb-mongosh
+      state: present
 
-- name: connnect to mongodb catalogue
-  ansible.builtin.command: mongosh mongodb.kolanu.space --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')"
-  register: catalogue_output
+  - name: connnect to mongodb catalogue
+    ansible.builtin.command: mongosh mongodb.kolanu.space --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')"
+    register: catalogue_output
 
-- name: print catalogue_output
-  ansible.builtin.command:
-    msg: "{{ catalogue_output }}"
+  - name: print catalogue_output
+    ansible.builtin.command:
+      msg: "{{ catalogue_output }}"
 
