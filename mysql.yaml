@@ -1,0 +1,21 @@
+- name: mysql server setup
+  hosts: mysql
+  become: yes
+  tasks:
+  - name: install mysql
+    ansible.builtin.dnf:
+      name: mysql-serve
+      state: present
+
+  - name: start and enable mysql
+    ansible.builtin.service:
+      name: mysql
+      state: started
+      enabled: yes
+  
+  - name: change default mysql password
+    community.mysql.mysql_user:
+      name: ROboShop@1
+      password:  RoboShop@1
+      
+      state: present
