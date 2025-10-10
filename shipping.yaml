@@ -11,7 +11,7 @@
     - mysql
 
   - name: application shipping set-up
-    ansible.builtin.shipping:
+    ansible.builtin.user:
        name: roboshop
        comment: roboshop system shipping
        system: true
