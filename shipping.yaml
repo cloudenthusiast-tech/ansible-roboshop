@@ -10,7 +10,12 @@
     - maven
     - mysql
 
-  - name: application shipping set-up
+  - name: install mysql python libraries
+    ansible.builtin.pip:
+       name: pyMySQL
+       executable: pip3.9
+
+  - name: application user set-up
     ansible.builtin.user:
        name: roboshop
        comment: roboshop system shipping
