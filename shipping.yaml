@@ -56,9 +56,9 @@
 
   - name: copy shipping service
     ansible.builtin.copy:
-      src: shipping.service
-      dest: /etc/systemd/system/shipping.service
-      remote_src: yes
+     src: shipping.service
+     dest: /etc/systemd/system/shipping.service
+    
 
   - name: import shipping data to mysql
     community.mysql.mysql_db:
