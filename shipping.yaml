@@ -1,0 +1,81 @@
+- name: shipping server set-up
+  hosts: shipping
+  become: yes
+  tasks:
+  - name: install maven
+    ansible.builtin.dnf:
+       name: "{{ item }}"
+       state: present
+    loop:
+    - maven
+    - mysql
+
+  - name: application shipping set-up
+    ansible.builtin.shipping:
+       name: roboshop
+       comment: roboshop system shipping
+       system: true
+       shell: /sbin/nologin
+       home: /app
+
+  - name: delete /app directory
+    ansible.builtin.file:
+      path: /app
+      state: absent
+
+  - name: create app directory
+    ansible.builtin.file:
+       path: /app
+       state: directory
+
+  - name: delete files in /app directory
+    ansible.builtin.file:
+       path: /tmp/shipping.zip
+       state: absent
+
+  - name: download shipping application
+    ansible.builtin.get_url:
+      url: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
+      dest: /tmp/shipping.zip
+
+  - name: unarchive shipping file
+    ansible.builtin.unarchive:
+      src: /tmp/shipping.zip
+      dest: /app
+      remote_src: yes
+
+  - name: install dependencies
+    ansible.builtin.command: mvn clean package
+    args:
+      chdir: /app
+
+  - name: move jar file
+    ansible.builtin.command: mv target/shipping-1.0.jar shipping.jar 
+    args:
+      chdir: /app
+
+  - name: copy shipping service
+    ansible.builtin.copy:
+      src: shipping.service
+      dest: /etc/systemd/system/shipping.service
+      remote_src: yes
+
+  - name: import shipping data to mysql
+    community.mysql.mysql_db:
+      state: import
+      name: all
+      login_host: mysql.kolanu.space
+      login_user: root
+      login_password: RoboShop@1
+      target: "{{ item }}"
+    loop:
+    - /app/db/schema.sql
+    - /app/db/app-user.sql 
+    - /app/db/master-data.sql
+
+  - name: start and enable shipping 
+    ansible.builtin.systemd_service:
+       name: shipping
+       state: started
+       enabled: yes
+       daemon_reload: true
